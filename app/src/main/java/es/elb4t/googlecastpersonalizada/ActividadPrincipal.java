@@ -9,7 +9,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import com.google.android.gms.cast.Cast;
@@ -20,6 +24,7 @@ import com.google.android.gms.cast.framework.CastSession;
 import com.google.android.gms.cast.framework.Session;
 import com.google.android.gms.cast.framework.SessionManager;
 import com.google.android.gms.cast.framework.SessionManagerListener;
+import com.google.android.gms.common.api.BatchResult;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 
@@ -30,6 +35,8 @@ public class ActividadPrincipal extends AppCompatActivity {
     private SessionManager mSessionManager;
     private Button textoButton;
     private Button fondoButton;
+    private EditText txt;
+    private Spinner colores;
     CanalCast mCanalCast = new CanalCast();
 
     @Override
@@ -42,6 +49,11 @@ public class ActividadPrincipal extends AppCompatActivity {
         textoButton.setOnClickListener(btnClickListener);
         fondoButton = (Button) findViewById(R.id.btn_fondo);
         fondoButton.setOnClickListener(btnClickListener);
+        txt = (EditText)findViewById(R.id.editText);
+        colores = (Spinner)findViewById(R.id.spinner);
+        String []opciones={"AZUL","VERDE","AMARILLO","ROJO"};
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_spinner_dropdown_item, opciones);
+        colores.setAdapter(adapter);
     }
 
     private final View.OnClickListener btnClickListener = new View.OnClickListener() {
@@ -49,11 +61,25 @@ public class ActividadPrincipal extends AppCompatActivity {
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.btn_texto:
-                    sendMessage("#T#hola");
+                    sendMessage("#T#" + txt.getText().toString());
                     Log.e("CAST", "-----BONON TEXTO");
                     break;
                 case R.id.btn_fondo:
-                    sendMessage("#F#blue");
+                    switch (colores.getSelectedItem().toString()){
+                        case "AZUL":
+                            sendMessage("#F#blue");
+                            break;
+                        case "VERDE":
+                            sendMessage("#F#green");
+                            break;
+                        case "AMARILLO":
+                            sendMessage("#F#yellow");
+                            break;
+                        case "ROJO":
+                            sendMessage("#F#red");
+                            break;
+                    }
+
                     Log.e("CAST", "-----BONON FONDO");
                     break;
             }
@@ -70,20 +96,7 @@ public class ActividadPrincipal extends AppCompatActivity {
         return true;
     }
 
-    /*@Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.media_route_menu_item) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }*/
     private final SessionManagerListener mSessionManagerListener =
             new SessionManagerListenerImpl();
 

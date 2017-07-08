@@ -16,7 +16,7 @@ import android.widget.Spinner;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import com.google.android.gms.cast.Cast;
+import com.google.android.gms.cast.Cast.MessageReceivedCallback;
 import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.framework.CastButtonFactory;
 import com.google.android.gms.cast.framework.CastContext;
@@ -38,12 +38,13 @@ public class ActividadPrincipal extends AppCompatActivity {
     private EditText txt;
     private Spinner colores;
     CanalCast mCanalCast = new CanalCast();
+    CastContext castContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        CastContext castContext = CastContext.getSharedInstance(this);
+        castContext = CastContext.getSharedInstance(this);
         mSessionManager = castContext.getSessionManager();
         textoButton = (Button) findViewById(R.id.btn_texto);
         textoButton.setOnClickListener(btnClickListener);
@@ -152,8 +153,10 @@ public class ActividadPrincipal extends AppCompatActivity {
             mCanalCast = new CanalCast();
             try {
                 mCastSession.setMessageReceivedCallbacks(mCanalCast.getNamespace(), mCanalCast);
+                Log.e("CAST", "SESION mesage recived callback");
             } catch (IOException e) {
                 mCanalCast = null;
+                Log.e("CAST", "ERROR SESION mesage recived callback" + e.getMessage().toString());
             }
         }
     }
@@ -162,7 +165,9 @@ public class ActividadPrincipal extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         mSessionManager.addSessionManagerListener(mSessionManagerListener);
-        mCastSession = mSessionManager.getCurrentCastSession();
+        if (mCastSession == null) {
+            mCastSession = mSessionManager.getCurrentCastSession();
+        }
     }
 
     @Override
@@ -193,7 +198,7 @@ public class ActividadPrincipal extends AppCompatActivity {
     }
 
 
-    class CanalCast implements Cast.MessageReceivedCallback {
+    public class CanalCast implements MessageReceivedCallback {
         public String getNamespace() {
             return "urn:x-cast:es.elb4t.googlecastpersonalizada";
         }
@@ -201,6 +206,10 @@ public class ActividadPrincipal extends AppCompatActivity {
         @Override
         public void onMessageReceived(CastDevice castDevice, String namespace, String message) {
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
+            Log.e("CAST", "MENSAJE RECIBIDO: "+ message);
+            if (message.equals("apagar")){
+                finish();
+            }
         }
     }
 }
